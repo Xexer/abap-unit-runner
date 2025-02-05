@@ -1,0 +1,141 @@
+{
+  "formatVersion": "1",
+  "header": {
+    "description": "ABAP Unit Runner (Execute)",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "generalInformation": {
+    "className": "ZCL_AUR_JOB_RUNNER"
+  },
+  "sections": [
+    {
+      "name": "COMM",
+      "title": "Communication"
+    },
+    {
+      "name": "RUN",
+      "title": "Settings"
+    }
+  ],
+  "groups": [
+    {
+      "name": "DEST",
+      "title": "Destinations",
+      "section": "COMM"
+    },
+    {
+      "name": "GEN",
+      "title": "General",
+      "section": "RUN"
+    },
+    {
+      "name": "SCOPE",
+      "title": "Scope",
+      "section": "RUN"
+    },
+    {
+      "name": "DUR",
+      "title": "Duration",
+      "section": "RUN"
+    },
+    {
+      "name": "RISK",
+      "title": "Risk Level",
+      "section": "RUN"
+    },
+    {
+      "name": "SEL",
+      "title": "Selection",
+      "section": "RUN"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "CLOUD_DESTINATION",
+      "title": "Destination",
+      "group": "DEST"
+    },
+    {
+      "name": "COMMUNICATION_SCENARIO",
+      "title": "Communication Arrangement",
+      "group": "DEST"
+    },
+    {
+      "name": "TITLE",
+      "title": "Title",
+      "group": "GEN",
+      "mandatory": true
+    },
+    {
+      "name": "WAIT_CYCLES_FOR_RESULT",
+      "title": "Wait (Cycles)",
+      "group": "GEN",
+      "mandatory": true
+    },
+    {
+      "name": "WAIT_IN_SECONDS",
+      "title": "Wait (Seconds)",
+      "group": "GEN",
+      "mandatory": true
+    },
+    {
+      "name": "SCOPE_OWN",
+      "title": "Own",
+      "group": "SCOPE",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "SCOPE_FOREIGN",
+      "title": "Foreign",
+      "group": "SCOPE",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "DURATION_SHORT",
+      "title": "Short",
+      "group": "DUR",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "DURATION_MEDIUM",
+      "title": "Medium",
+      "group": "DUR",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "DURATION_LONG",
+      "title": "Long",
+      "group": "DUR",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "RISKLEVEL_HARMLESS",
+      "title": "Harmless",
+      "group": "RISK",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "RISKLEVEL_DANGEROUS",
+      "title": "Dangerous",
+      "group": "RISK",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "RISKLEVEL_CRITICAL",
+      "title": "Critical",
+      "group": "RISK",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "PACKAGES",
+      "title": "Packages",
+      "group": "SEL"
+    },
+    {
+      "name": "CLASSES",
+      "title": "Classes",
+      "group": "SEL"
+    }
+  ]
+}

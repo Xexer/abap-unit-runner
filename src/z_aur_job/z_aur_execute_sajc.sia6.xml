@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_SIA6" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <SIA6>
+    <MAIN_OBJECT>
+     <NAME>Z_AUR_EXECUTE_SAJC</NAME>
+     <TYPE>SIA6</TYPE>
+     <DESCRIPTION>IAM APP:Z_AUR_EXECUTE_SAJC</DESCRIPTION>
+     <RESPONSIBLE>CB9980000024</RESPONSIBLE>
+     <MASTER_LANGUAGE>EN</MASTER_LANGUAGE>
+     <MASTER_SYSTEM>AED</MASTER_SYSTEM>
+     <PACKAGE_REF>
+      <PACKAGE_NAME>Z_AUR_JOB</PACKAGE_NAME>
+     </PACKAGE_REF>
+     <ABAP_LANGU_VERSION>5</ABAP_LANGU_VERSION>
+    </MAIN_OBJECT>
+    <APP_ID>Z_AUR_EXECUTE_SAJC</APP_ID>
+    <APP_TYPE>SAJC</APP_TYPE>
+    <ABAP_LANGUAGE_VERSION>5</ABAP_LANGUAGE_VERSION>
+    <SECONDARY_ID>Z_AUR_EXECUTE</SECONDARY_ID>
+    <PUBLISH_STATUS>p</PUBLISH_STATUS>
+   </SIA6>
+  </asx:values>
+ </asx:abap>
+</abapGit>

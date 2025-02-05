@@ -1,0 +1,77 @@
+{
+  "formatVersion": "1",
+  "header": {
+    "description": "ABAP Unit Runner (Execute)",
+    "originalLanguage": "en",
+    "abapLanguageVersion": "cloudDevelopment"
+  },
+  "generalInformation": {
+    "catalogName": "Z_AUR_EXECUTE"
+  },
+  "parameters": {
+    "singleValueParameters": [
+      {
+        "name": "CLOUD_DESTINATION",
+        "value": ""
+      },
+      {
+        "name": "COMMUNICATION_SCENARIO",
+        "value": ""
+      },
+      {
+        "name": "DURATION_LONG",
+        "value": ""
+      },
+      {
+        "name": "DURATION_MEDIUM",
+        "value": ""
+      },
+      {
+        "name": "DURATION_SHORT",
+        "value": "X"
+      },
+      {
+        "name": "RISKLEVEL_CRITICAL",
+        "value": ""
+      },
+      {
+        "name": "RISKLEVEL_DANGEROUS",
+        "value": ""
+      },
+      {
+        "name": "RISKLEVEL_HARMLESS",
+        "value": "X"
+      },
+      {
+        "name": "SCOPE_FOREIGN",
+        "value": "X"
+      },
+      {
+        "name": "SCOPE_OWN",
+        "value": "X"
+      },
+      {
+        "name": "TITLE",
+        "value": "AUnit Run"
+      },
+      {
+        "name": "WAIT_CYCLES_FOR_RESULT",
+        "value": "60"
+      },
+      {
+        "name": "WAIT_IN_SECONDS",
+        "value": "1"
+      }
+    ],
+    "valueRangesParameters": [
+      {
+        "name": "CLASSES",
+        "valueRanges": []
+      },
+      {
+        "name": "PACKAGES",
+        "valueRanges": []
+      }
+    ]
+  }
+}
