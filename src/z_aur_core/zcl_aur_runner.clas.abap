@@ -1,14 +1,10 @@
 CLASS zcl_aur_runner DEFINITION
   PUBLIC FINAL
-  CREATE PRIVATE.
+  CREATE PRIVATE
+  GLOBAL FRIENDS zcl_aur_core_factory.
 
   PUBLIC SECTION.
     INTERFACES zif_aur_runner.
-
-    "! Create an instance of the parser
-    "! @parameter result | Parser
-    CLASS-METHODS create
-      RETURNING VALUE(result) TYPE REF TO zif_aur_runner.
 
   PRIVATE SECTION.
     DATA run_setting TYPE zif_aur_runner=>setting.
@@ -84,11 +80,6 @@ ENDCLASS.
 
 
 CLASS zcl_aur_runner IMPLEMENTATION.
-  METHOD create.
-    RETURN NEW zcl_aur_runner( ).
-  ENDMETHOD.
-
-
   METHOD zif_aur_runner~execute.
     set_settings_and_empty_values( setting ).
 
@@ -98,7 +89,7 @@ CLASS zcl_aur_runner IMPLEMENTATION.
 
         result-aunit_result = read_results( status ).
 
-        IF result-aunit_result-title IS INITIAL.
+        IF result-aunit_result-tests = 0.
           result-success = abap_false.
         ELSE.
           result-success = abap_true.
@@ -115,8 +106,8 @@ CLASS zcl_aur_runner IMPLEMENTATION.
     DO.
       DATA(run_index) = sy-index.
 
-      DATA(status) = check_run( run_id ).
-      IF status-progress_status = zif_aur_runner=>run_status-finished.
+      result = check_run( run_id ).
+      IF result-progress_status = zif_aur_runner=>run_status-finished.
         EXIT.
       ENDIF.
 
@@ -171,7 +162,7 @@ CLASS zcl_aur_runner IMPLEMENTATION.
     DATA(response) = client->execute( i_method = if_web_http_client=>get ).
 
     IF response->get_status( )-code = 200.
-      DATA(parser) = zcl_aur_parser=>create( ).
+      DATA(parser) = zcl_aur_core_factory=>create_parser( ).
       RETURN parser->parse_aunit_run( response->get_text( ) ).
     ENDIF.
   ENDMETHOD.
@@ -188,7 +179,7 @@ CLASS zcl_aur_runner IMPLEMENTATION.
     DATA(response) = client->execute( i_method = if_web_http_client=>get ).
 
     IF response->get_status( )-code = 200.
-      DATA(parser) = zcl_aur_parser=>create( ).
+      DATA(parser) = zcl_aur_core_factory=>create_parser( ).
       RETURN parser->parse_aunit_result( response->get_text( ) ).
     ENDIF.
   ENDMETHOD.
@@ -213,9 +204,14 @@ CLASS zcl_aur_runner IMPLEMENTATION.
 
 
   METHOD get_request_payload.
+    DATA(package_list) = ``.
+    LOOP AT run_setting-packages INTO DATA(package).
+      package_list &&= |     <osl:package includeSubpackages="true" name="{ package }"/>\r\n|.
+    ENDLOOP.
+
     DATA(object_list) = ``.
-    LOOP AT run_setting-objects INTO DATA(object).
-      object_list &&= |     <osl:object name="{ object-name }" type="{ object-type }"/>\r\n|.
+    LOOP AT run_setting-classes INTO DATA(object).
+      object_list &&= |     <osl:object name="{ object }" type="CLAS"/>\r\n|.
     ENDLOOP.
 
     RETURN |<?xml version="1.0" encoding="UTF-8"?>\r\n| &
@@ -233,7 +229,7 @@ CLASS zcl_aur_runner IMPLEMENTATION.
            |  </aunit:options>\r\n| &
            |  <osl:objectSet xsi:type="unionSet" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osl="http://www.sap.com/api/osl">\r\n| &
            |   <osl:set xsi:type="osl:packageSet">\r\n| &
-           |     <osl:package includeSubpackages="true" name="PACKAGE_ONE"/>\r\n| &
+           |     { package_list }| &
            |   </osl:set>\r\n| &
            |   <osl:set xsi:type="osl:flatObjectSet">\r\n| &
            |     { object_list }| &

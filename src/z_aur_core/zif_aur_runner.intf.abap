@@ -1,27 +1,30 @@
 INTERFACE zif_aur_runner
   PUBLIC.
 
-  TYPES: BEGIN OF aunit_object,
-           name TYPE string,
-           type TYPE string,
-         END OF aunit_object.
-  TYPES aunit_objects TYPE STANDARD TABLE OF aunit_object WITH EMPTY KEY.
+  TYPES aunit_object   TYPE c LENGTH 40.
+  TYPES aunit_objects  TYPE STANDARD TABLE OF aunit_object WITH EMPTY KEY.
+
+  TYPES mail_receivers TYPE STANDARD TABLE OF cl_bcs_mail_message=>ty_address WITH EMPTY KEY.
 
   TYPES: BEGIN OF setting,
-           cloud_destination      TYPE string,
-           communication_scenario TYPE if_com_management=>ty_cscn_id,
-           wait_in_seconds        TYPE i,
-           wait_cycles_for_result TYPE i,
-           title                  TYPE string,
-           scope_own              TYPE abap_boolean,
-           scope_foreign          TYPE abap_boolean,
-           risklevel_harmless     TYPE abap_boolean,
-           risklevel_dangerous    TYPE abap_boolean,
-           risklevel_critical     TYPE abap_boolean,
-           duration_short         TYPE abap_boolean,
-           duration_medium        TYPE abap_boolean,
-           duration_long          TYPE abap_boolean,
-           objects                TYPE aunit_objects,
+           cloud_destination         TYPE string,
+           communication_scenario    TYPE if_com_management=>ty_cscn_id,
+           wait_in_seconds           TYPE i,
+           wait_cycles_for_result    TYPE i,
+           title                     TYPE string,
+           scope_own                 TYPE abap_boolean,
+           scope_foreign             TYPE abap_boolean,
+           risklevel_harmless        TYPE abap_boolean,
+           risklevel_dangerous       TYPE abap_boolean,
+           risklevel_critical        TYPE abap_boolean,
+           duration_short            TYPE abap_boolean,
+           duration_medium           TYPE abap_boolean,
+           duration_long             TYPE abap_boolean,
+           packages                  TYPE aunit_objects,
+           classes                   TYPE aunit_objects,
+           mail_sender               TYPE cl_bcs_mail_message=>ty_address,
+           mail_receiver             TYPE mail_receivers,
+           mail_send_only_with_error TYPE abap_boolean,
          END OF setting.
 
   TYPES: BEGIN OF aunit_run,

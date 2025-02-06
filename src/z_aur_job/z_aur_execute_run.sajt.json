@@ -31,6 +31,10 @@
         "value": "X"
       },
       {
+        "name": "MAIL_SEND_ONLY_WITH_ERROR",
+        "value": "X"
+      },
+      {
         "name": "RISKLEVEL_CRITICAL",
         "value": ""
       },
@@ -49,6 +53,14 @@
       {
         "name": "SCOPE_OWN",
         "value": "X"
+      },
+      {
+        "name": "SENDER",
+        "value": ""
+      },
+      {
+        "name": "SEND_MAIL",
+        "value": ""
       },
       {
         "name": "TITLE",
@@ -70,6 +82,10 @@
       },
       {
         "name": "PACKAGES",
+        "valueRanges": []
+      },
+      {
+        "name": "RECEIVER",
         "valueRanges": []
       }
     ]

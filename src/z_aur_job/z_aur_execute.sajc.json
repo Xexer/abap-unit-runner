@@ -16,6 +16,10 @@
     {
       "name": "RUN",
       "title": "Settings"
+    },
+    {
+      "name": "NOTIF",
+      "title": "Notification"
     }
   ],
   "groups": [
@@ -48,6 +52,11 @@
       "name": "SEL",
       "title": "Selection",
       "section": "RUN"
+    },
+    {
+      "name": "MAIL",
+      "title": "E-Mail Settings",
+      "section": "NOTIF"
     }
   ],
   "parameters": [
@@ -136,6 +145,28 @@
       "name": "CLASSES",
       "title": "Classes",
       "group": "SEL"
+    },
+    {
+      "name": "SEND_MAIL",
+      "title": "Send mail",
+      "group": "MAIL",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "MAIL_SEND_ONLY_WITH_ERROR",
+      "title": "Only send, when error",
+      "group": "MAIL",
+      "screenElement": "checkbox"
+    },
+    {
+      "name": "SENDER",
+      "title": "Sender",
+      "group": "MAIL"
+    },
+    {
+      "name": "RECEIVER",
+      "title": "Receiver",
+      "group": "MAIL"
     }
   ]
 }

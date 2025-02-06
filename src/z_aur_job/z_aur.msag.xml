@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>Z_AUR</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>AUnit Messages</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_AUR</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>*** AUnit Messages ***</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_AUR</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>A total of &amp;1 tests were executed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_AUR</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>There were errors in the execution</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_AUR</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>All tests were carried out successfully</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
