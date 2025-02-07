@@ -150,7 +150,7 @@ CLASS zcl_aur_mail IMPLEMENTATION.
            |</head>| &
            |<body>| &
            |  { body }| &
-           |</body| &
+           |</body>| &
            |</html>|.
   ENDMETHOD.
 
