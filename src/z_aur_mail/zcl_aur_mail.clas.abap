@@ -84,50 +84,8 @@ CLASS zcl_aur_mail DEFINITION
 ENDCLASS.
 
 
-CLASS zcl_aur_mail IMPLEMENTATION.
-  METHOD zif_aur_mail~send.
-    DATA(content) = create_mail_content( setting    = setting
-                                         run_result = run_result ).
 
-    IF setting-mail_send_only_with_error = abap_true AND run_result-aunit_result-failures = 0 OR run_result-aunit_result-asserts = 0.
-      RETURN VALUE #( success = abap_true ).
-    ENDIF.
-
-    RETURN send_final_document( setting          = setting
-                                document_content = content ).
-  ENDMETHOD.
-
-
-  METHOD send_final_document.
-    TRY.
-        DATA(mail_client) = cl_bcs_mail_message=>create_instance( ).
-
-        mail_client->set_sender( setting-mail_sender ).
-
-        LOOP AT setting-mail_receiver INTO DATA(receiver).
-          mail_client->add_recipient( receiver ).
-        ENDLOOP.
-
-        mail_client->set_subject( |{ TEXT-001 }: { setting-title }| ).
-        mail_client->set_main( cl_bcs_mail_textpart=>create_instance( iv_content      = document_content
-                                                                      iv_content_type = 'text/html' ) ).
-        mail_client->send( IMPORTING et_status = DATA(sender_status) ).
-
-        result-success = abap_true.
-        LOOP AT sender_status INTO DATA(status).
-          IF status-status = 'E'.
-            result-error_message = |{ TEXT-002 } { status-recipient }|.
-            result-success       = abap_false.
-            RETURN.
-          ENDIF.
-        ENDLOOP.
-
-      CATCH cx_bcs_mail INTO DATA(mail_error).
-        result-error_message = cl_message_helper=>get_latest_t100_exception( mail_error )->if_message~get_text( ).
-        result-success       = abap_false.
-
-    ENDTRY.
-  ENDMETHOD.
+CLASS ZCL_AUR_MAIL IMPLEMENTATION.
 
 
   METHOD create_mail_content.
@@ -155,6 +113,23 @@ CLASS zcl_aur_mail IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD extract_object_name.
+    TRY.
+        DATA(splitted) = xco_cp=>string( name )->to_upper_case( )->split( `:` )->value.
+        DATA(classes) = xco_cp=>string( splitted[ lines( splitted ) ] )->split( `---` )->value.
+
+        IF lines( classes ) = 2.
+          RETURN |{ classes[ 1 ] } [{ classes[ 2 ] }]|.
+        ELSE.
+          RETURN classes[ 1 ].
+        ENDIF.
+
+      CATCH cx_root.
+        RETURN to_upper( name ).
+    ENDTRY.
+  ENDMETHOD.
+
+
   METHOD generate_general_part.
     DATA(general) = VALUE zif_aur_mail=>general_parts( ( title          = TEXT-005
                                                          system         = TEXT-006
@@ -175,6 +150,41 @@ CLASS zcl_aur_mail IMPLEMENTATION.
                                                                    ( column = 8 negative = abap_true )
                                                                    ( column = 10 negative = abap_true )
                                                                    ( column = 11 positive = abap_true ) ) ) }|.
+  ENDMETHOD.
+
+
+  METHOD generate_package.
+    LOOP AT run_result-aunit_result-test_details INTO DATA(detail) WHERE package = package.
+      DATA(object_name) = ``.
+      DATA(objects) = VALUE zif_aur_mail=>object_parts( ( tests     = TEXT-015
+                                                          failures  = TEXT-011
+                                                          errors    = TEXT-012
+                                                          skipped   = TEXT-013
+                                                          asserts   = TEXT-014
+                                                          timestamp = TEXT-010
+                                                          time      = TEXT-016 ) ).
+      INSERT CORRESPONDING #( detail ) INTO TABLE objects.
+
+      DATA(methods) = VALUE zif_aur_mail=>method_parts( ( name = TEXT-017 time = TEXT-016 asserts = TEXT-014 ) ).
+      LOOP AT detail-test_methods INTO DATA(method).
+        IF sy-tabix = 1.
+          object_name = extract_object_name( method-classname ).
+        ENDIF.
+
+        method-name = to_upper( method-name ).
+        INSERT CORRESPONDING #( method ) INTO TABLE methods.
+      ENDLOOP.
+
+      DATA(object_output) = generate_table( generic_data = REF #( objects )
+                                            formats      = VALUE #( ( column = 1 positive = abap_true )
+                                                                    ( column = 2 negative = abap_true )
+                                                                    ( column = 3 negative = abap_true )
+                                                                    ( column = 5 negative = abap_true ) ) ).
+      DATA(method_output) = generate_table( generic_data = REF #( methods )
+                                            formats      = VALUE #( ( column = 3 negative = abap_true ) ) ).
+
+      result &&= |<h3>{ object_name }</h3>{ object_output }<br>{ method_output }|.
+    ENDLOOP.
   ENDMETHOD.
 
 
@@ -258,54 +268,47 @@ CLASS zcl_aur_mail IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD generate_package.
-    LOOP AT run_result-aunit_result-test_details INTO DATA(detail) WHERE package = package.
-      DATA(object_name) = ``.
-      DATA(objects) = VALUE zif_aur_mail=>object_parts( ( tests     = TEXT-015
-                                                          failures  = TEXT-011
-                                                          errors    = TEXT-012
-                                                          skipped   = TEXT-013
-                                                          asserts   = TEXT-014
-                                                          timestamp = TEXT-010
-                                                          time      = TEXT-016 ) ).
-      INSERT CORRESPONDING #( detail ) INTO TABLE objects.
+  METHOD send_final_document.
+    TRY.
+        DATA(mail_client) = cl_bcs_mail_message=>create_instance( ).
 
-      DATA(methods) = VALUE zif_aur_mail=>method_parts( ( name = TEXT-017 time = TEXT-016 asserts = TEXT-014 ) ).
-      LOOP AT detail-test_methods INTO DATA(method).
-        IF sy-tabix = 1.
-          object_name = extract_object_name( method-classname ).
-        ENDIF.
+        mail_client->set_sender( setting-mail_sender ).
 
-        method-name = to_upper( method-name ).
-        INSERT CORRESPONDING #( method ) INTO TABLE methods.
-      ENDLOOP.
+        LOOP AT setting-mail_receiver INTO DATA(receiver).
+          mail_client->add_recipient( receiver ).
+        ENDLOOP.
 
-      DATA(object_output) = generate_table( generic_data = REF #( objects )
-                                            formats      = VALUE #( ( column = 1 positive = abap_true )
-                                                                    ( column = 2 negative = abap_true )
-                                                                    ( column = 3 negative = abap_true )
-                                                                    ( column = 5 negative = abap_true ) ) ).
-      DATA(method_output) = generate_table( generic_data = REF #( methods )
-                                            formats      = VALUE #( ( column = 3 negative = abap_true ) ) ).
+        mail_client->set_subject( |{ TEXT-001 }: { setting-title }| ).
+        mail_client->set_main( cl_bcs_mail_textpart=>create_instance( iv_content      = document_content
+                                                                      iv_content_type = 'text/html' ) ).
+        mail_client->send( IMPORTING et_status = DATA(sender_status) ).
 
-      result &&= |<h3>{ object_name }</h3>{ object_output }<br>{ method_output }|.
-    ENDLOOP.
+        result-success = abap_true.
+        LOOP AT sender_status INTO DATA(status).
+          IF status-status = 'E'.
+            result-error_message = |{ TEXT-002 } { status-recipient }|.
+            result-success       = abap_false.
+            RETURN.
+          ENDIF.
+        ENDLOOP.
+
+      CATCH cx_bcs_mail INTO DATA(mail_error).
+        result-error_message = cl_message_helper=>get_latest_t100_exception( mail_error )->if_message~get_text( ).
+        result-success       = abap_false.
+
+    ENDTRY.
   ENDMETHOD.
 
 
-  METHOD extract_object_name.
-    TRY.
-        DATA(splitted) = xco_cp=>string( name )->to_upper_case( )->split( `:` )->value.
-        DATA(classes) = xco_cp=>string( splitted[ lines( splitted ) ] )->split( `---` )->value.
+  METHOD zif_aur_mail~send.
+    DATA(content) = create_mail_content( setting    = setting
+                                         run_result = run_result ).
 
-        IF lines( classes ) = 2.
-          RETURN |{ classes[ 1 ] } [{ classes[ 2 ] }]|.
-        ELSE.
-          RETURN classes[ 1 ].
-        ENDIF.
+    IF setting-mail_send_only_with_error = abap_true AND run_result-aunit_result-failures = 0 AND run_result-aunit_result-asserts = 0.
+      RETURN VALUE #( success = abap_true ).
+    ENDIF.
 
-      CATCH cx_root.
-        RETURN to_upper( name ).
-    ENDTRY.
+    RETURN send_final_document( setting          = setting
+                                document_content = content ).
   ENDMETHOD.
 ENDCLASS.
