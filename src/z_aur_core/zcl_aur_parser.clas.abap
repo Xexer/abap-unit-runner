@@ -6,166 +6,163 @@ CLASS zcl_aur_parser DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_aur_parser.
 
+  PRIVATE SECTION.
+    TYPES: BEGIN OF mapping,
+             attribute TYPE string,
+             field     TYPE c LENGTH 30,
+           END OF mapping.
+    TYPES mappings TYPE STANDARD TABLE OF mapping WITH EMPTY KEY.
+
+    "! Creates an instance of the XML reader class
+    "! @parameter to_parse | XML String
+    "! @parameter result   | XML Reader object
+    METHODS get_reader_from_xml
+      IMPORTING to_parse      TYPE string
+      RETURNING VALUE(result) TYPE REF TO if_sxml_reader.
+
+    "! Read and map attributes to structure
+    "! @parameter mappings  | <p class="shorttext synchronized"></p>
+    "! @parameter structure | Reference to data structure
+    "! @parameter open_node | Open node for attributes
+    METHODS fill_result
+      IMPORTING mappings   TYPE mappings
+                !structure TYPE REF TO data
+                open_node  TYPE REF TO if_sxml_open_element.
 ENDCLASS.
 
 
 CLASS zcl_aur_parser IMPLEMENTATION.
-  METHOD zif_aur_parser~parse_aunit_run.
-    DATA(binary) = xco_cp=>string( to_parse )->as_xstring( xco_cp_character=>code_page->utf_8 )->value.
-    DATA(reader) = cl_sxml_string_reader=>create( binary ).
+  METHOD zif_aur_parser~parse_aunit_result.
+    DATA(reader) = get_reader_from_xml( to_parse ).
 
     DO.
-      TRY.
-          reader->next_node( ).
-        CATCH cx_sxml_parse_error.
-          EXIT.
-      ENDTRY.
+      DATA(node) = reader->read_next_node( ).
+      IF reader->node_type = if_sxml_node=>co_nt_final.
+        EXIT.
+      ENDIF.
 
       IF reader->node_type <> if_sxml_node=>co_nt_element_open.
         CONTINUE.
       ENDIF.
 
-      TRY.
-          CASE to_upper( reader->name ).
-            WHEN 'RUN'.
-              reader->get_attribute_value( `title` ).
-              result-title = reader->value.
+      DATA(open_node) = CAST if_sxml_open_element( node ).
 
-              reader->get_attribute_value( `context` ).
-              result-context = reader->value.
+      CASE to_upper( reader->name ).
+        WHEN 'TESTSUITES'.
+          fill_result( mappings  = VALUE #( ( attribute = `title` )
+                                            ( attribute = `system` )
+                                            ( attribute = `client` )
+                                            ( attribute = `executedBy` field = 'EXECUTION_USER' )
+                                            ( attribute = `time` )
+                                            ( attribute = `timestamp` )
+                                            ( attribute = `failures` )
+                                            ( attribute = `errors` )
+                                            ( attribute = `skipped` )
+                                            ( attribute = `asserts` )
+                                            ( attribute = `tests` ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-            WHEN 'PROGRESS'.
-              reader->get_attribute_value( `status` ).
-              result-progress_status = reader->value.
+        WHEN 'TESTSUITE'.
+          INSERT INITIAL LINE INTO TABLE result-test_details REFERENCE INTO DATA(test).
+          fill_result( mappings  = VALUE #( ( attribute = `name` )
+                                            ( attribute = `tests` )
+                                            ( attribute = `failures` )
+                                            ( attribute = `errors` )
+                                            ( attribute = `skipped` )
+                                            ( attribute = `asserts` )
+                                            ( attribute = `package` )
+                                            ( attribute = `timestamp` )
+                                            ( attribute = `time` )
+                                            ( attribute = `hostname` ) )
+                       structure = test
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `percentage` ).
-              result-progress_percentage = reader->value.
+        WHEN 'TESTCASE'.
+          INSERT INITIAL LINE INTO TABLE test->test_methods REFERENCE INTO DATA(method).
+          fill_result( mappings  = VALUE #( ( attribute = `classname` )
+                                            ( attribute = `name` )
+                                            ( attribute = `time` )
+                                            ( attribute = `asserts` ) )
+                       structure = method
+                       open_node = open_node ).
 
-            WHEN 'EXECUTEDBY'.
-              reader->get_attribute_value( `user` ).
-              result-execution_user = reader->value.
-
-            WHEN 'TIME'.
-              reader->get_attribute_value( `started` ).
-              result-start = reader->value.
-
-              reader->get_attribute_value( `ended` ).
-              result-end = reader->value.
-
-            WHEN 'LINK'.
-              reader->get_attribute_value( `href` ).
-              result-result_link = reader->value.
-
-          ENDCASE.
-
-        CATCH cx_root.
-      ENDTRY.
+      ENDCASE.
     ENDDO.
   ENDMETHOD.
 
 
-  METHOD zif_aur_parser~parse_aunit_result.
-    DATA(binary) = xco_cp=>string( to_parse )->as_xstring( xco_cp_character=>code_page->utf_8 )->value.
-    DATA(reader) = cl_sxml_string_reader=>create( binary ).
+  METHOD zif_aur_parser~parse_aunit_run.
+    DATA(reader) = get_reader_from_xml( to_parse ).
 
     DO.
-      TRY.
-          reader->next_node( ).
-        CATCH cx_sxml_parse_error.
-          EXIT.
-      ENDTRY.
+      DATA(node) = reader->read_next_node( ).
+      IF reader->node_type = if_sxml_node=>co_nt_final.
+        EXIT.
+      ENDIF.
 
       IF reader->node_type <> if_sxml_node=>co_nt_element_open.
         CONTINUE.
       ENDIF.
 
-      TRY.
-          CASE to_upper( reader->name ).
-            WHEN 'TESTSUITES'.
-              reader->get_attribute_value( `title` ).
-              result-title = reader->value.
+      DATA(open_node) = CAST if_sxml_open_element( node ).
 
-              reader->get_attribute_value( `system` ).
-              result-system = reader->value.
+      CASE to_upper( reader->name ).
+        WHEN 'RUN'.
+          fill_result( mappings  = VALUE #( ( attribute = `title` )
+                                            ( attribute = `context` ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `client` ).
-              result-client = reader->value.
+        WHEN 'PROGRESS'.
+          fill_result( mappings  = VALUE #( ( attribute = `status` field = 'PROGRESS_STATUS' )
+                                            ( attribute = `percentage` field = 'PROGRESS_PERCENTAGE' ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `executedBy` ).
-              result-execution_user = reader->value.
+        WHEN 'EXECUTEDBY'.
+          fill_result( mappings  = VALUE #( ( attribute = `user` field = 'EXECUTION_USER' ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `time` ).
-              result-time = reader->value.
+        WHEN 'TIME'.
+          fill_result( mappings  = VALUE #( ( attribute = `started` field = 'START' )
+                                            ( attribute = `ended` field = 'END' ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `timestamp` ).
-              result-timestamp = reader->value.
+        WHEN 'LINK'.
+          fill_result( mappings  = VALUE #( ( attribute = `href` field = 'RESULT_LINK' ) )
+                       structure = REF #( result )
+                       open_node = open_node ).
 
-              reader->get_attribute_value( `failures` ).
-              result-failures = reader->value.
-
-              reader->get_attribute_value( `errors` ).
-              result-errors = reader->value.
-
-              reader->get_attribute_value( `skipped` ).
-              result-skipped = reader->value.
-
-              reader->get_attribute_value( `asserts` ).
-              result-asserts = reader->value.
-
-              reader->get_attribute_value( `tests` ).
-              result-tests = reader->value.
-
-            WHEN 'TESTSUITE'.
-              INSERT INITIAL LINE INTO TABLE result-test_details REFERENCE INTO DATA(test).
-
-              reader->get_attribute_value( `name` ).
-              test->name = reader->value.
-
-              reader->get_attribute_value( `tests` ).
-              test->tests = reader->value.
-
-              reader->get_attribute_value( `failures` ).
-              test->failures = reader->value.
-
-              reader->get_attribute_value( `errors` ).
-              test->errors = reader->value.
-
-              reader->get_attribute_value( `skipped` ).
-              test->skipped = reader->value.
-
-              reader->get_attribute_value( `asserts` ).
-              test->asserts = reader->value.
-
-              reader->get_attribute_value( `package` ).
-              test->package = reader->value.
-
-              reader->get_attribute_value( `timestamp` ).
-              test->timestamp = reader->value.
-
-              reader->get_attribute_value( `time` ).
-              test->time = reader->value.
-
-              reader->get_attribute_value( `hostname` ).
-              test->hostname = reader->value.
-
-            WHEN 'TESTCASE'.
-              INSERT INITIAL LINE INTO TABLE test->test_methods REFERENCE INTO DATA(method).
-
-              reader->get_attribute_value( `classname` ).
-              method->classname = reader->value.
-
-              reader->get_attribute_value( `name` ).
-              method->name = reader->value.
-
-              reader->get_attribute_value( `time` ).
-              method->time = reader->value.
-
-              reader->get_attribute_value( `asserts` ).
-              method->asserts = reader->value.
-          ENDCASE.
-
-        CATCH cx_root.
-      ENDTRY.
+      ENDCASE.
     ENDDO.
+  ENDMETHOD.
+
+
+  METHOD fill_result.
+    LOOP AT mappings REFERENCE INTO DATA(mapping).
+      DATA(result_field) = COND #( WHEN mapping->field IS NOT INITIAL
+                                   THEN mapping->field
+                                   ELSE to_upper( mapping->attribute ) ).
+
+      ASSIGN COMPONENT result_field OF STRUCTURE structure->* TO FIELD-SYMBOL(<field>).
+      IF sy-subrc <> 0.
+        CONTINUE.
+      ENDIF.
+
+      TRY.
+          <field> = open_node->get_attribute_value( mapping->attribute )->get_value( ).
+        CATCH cx_root.
+          CLEAR <field>.
+      ENDTRY.
+    ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD get_reader_from_xml.
+    DATA(binary) = xco_cp=>string( to_parse )->as_xstring( xco_cp_character=>code_page->utf_8 )->value.
+    RETURN cl_sxml_string_reader=>create( binary ).
   ENDMETHOD.
 ENDCLASS.

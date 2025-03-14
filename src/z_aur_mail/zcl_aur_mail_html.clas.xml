@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_AUR_PARSER</CLSNAME>
+    <CLSNAME>ZCL_AUR_MAIL_HTML</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>AUnit Parser</DESCRIPT>
+    <DESCRIPT>AUnit HTML Generation (Class)</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

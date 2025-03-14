@@ -39,20 +39,6 @@ INTERFACE zif_aur_mail
          END OF method_part.
   TYPES method_parts TYPE STANDARD TABLE OF method_part WITH EMPTY KEY.
 
-  TYPES: BEGIN OF format,
-           column   TYPE i,
-           positive TYPE abap_boolean,
-           negative TYPE abap_boolean,
-         END OF format.
-  TYPES formats TYPE SORTED TABLE OF format WITH UNIQUE KEY column.
-
-  CONSTANTS: BEGIN OF hex_color,
-               positive   TYPE string VALUE `#98fa91`,
-               negative   TYPE string VALUE `#ff6363`,
-               table_back TYPE string VALUE `#222224`,
-               table_text TYPE string VALUE `#ffffff`,
-             END OF hex_color.
-
   "! Send the result as E-Mail
   "! @parameter setting    | Settings for the run
   "! @parameter run_result | Result of the run

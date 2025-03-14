@@ -43,21 +43,8 @@ CLASS zcl_aur_job_runner DEFINITION
 ENDCLASS.
 
 
-CLASS zcl_aur_job_runner IMPLEMENTATION.
-  METHOD if_apj_rt_run~execute.
-    DATA(setting) = create_setting( ).
 
-    DATA(runner) = zcl_aur_core_factory=>create_runner( ).
-    DATA(result) = runner->execute( setting ).
-
-    IF send_mail = abap_true.
-      zcl_aur_mail_factory=>create( )->send( setting    = setting
-                                             run_result = result ).
-    ELSE.
-      output_to_log( setting    = setting
-                     run_result = result ).
-    ENDIF.
-  ENDMETHOD.
+CLASS ZCL_AUR_JOB_RUNNER IMPLEMENTATION.
 
 
   METHOD create_setting.
@@ -94,6 +81,22 @@ CLASS zcl_aur_job_runner IMPLEMENTATION.
                                           classes                = mapped_classes
                                           mail_sender            = sender
                                           mail_receiver          = receiver ).
+  ENDMETHOD.
+
+
+  METHOD if_apj_rt_run~execute.
+    DATA(setting) = create_setting( ).
+
+    DATA(runner) = zcl_aur_core_factory=>create_runner( ).
+    DATA(result) = runner->execute( setting ).
+
+    IF send_mail = abap_true.
+      zcl_aur_mail_factory=>create( )->send( setting    = setting
+                                             run_result = result ).
+    ELSE.
+      output_to_log( setting    = setting
+                     run_result = result ).
+    ENDIF.
   ENDMETHOD.
 
 

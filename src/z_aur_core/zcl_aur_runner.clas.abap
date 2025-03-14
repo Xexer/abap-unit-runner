@@ -79,74 +79,15 @@ CLASS zcl_aur_runner DEFINITION
 ENDCLASS.
 
 
-CLASS zcl_aur_runner IMPLEMENTATION.
-  METHOD zif_aur_runner~execute.
-    set_settings_and_empty_values( setting ).
 
-    TRY.
-        DATA(run_id) = start_run( ).
-        DATA(status) = run_and_wait_for_result( run_id ).
-
-        result-aunit_result = read_results( status ).
-
-        IF result-aunit_result-tests = 0.
-          result-success = abap_false.
-        ELSE.
-          result-success = abap_true.
-        ENDIF.
-
-      CATCH cx_root INTO DATA(error).
-        result-error_message = cl_message_helper=>get_latest_t100_exception( error )->if_message~get_text( ).
-        result-success       = abap_false.
-    ENDTRY.
-  ENDMETHOD.
+CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
 
 
-  METHOD run_and_wait_for_result.
-    DO.
-      DATA(run_index) = sy-index.
-
-      result = check_run( run_id ).
-      IF result-progress_status = zif_aur_runner=>run_status-finished.
-        EXIT.
-      ENDIF.
-
-      IF run_index >= run_setting-wait_cycles_for_result.
-        EXIT.
-      ELSE.
-        WAIT UP TO run_setting-wait_in_seconds SECONDS.
-      ENDIF.
-    ENDDO.
-  ENDMETHOD.
-
-
-  METHOD set_settings_and_empty_values.
-    run_setting = setting.
-
-    IF run_setting-wait_in_seconds IS INITIAL.
-      run_setting-wait_in_seconds = 1.
-    ENDIF.
-
-    IF run_setting-wait_cycles_for_result IS INITIAL.
-      run_setting-wait_cycles_for_result = 60.
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD start_run.
-    DATA(client) = get_client( ).
-
-    DATA(request) = client->get_http_request( ).
-    request->set_uri_path( zif_aur_runner=>endpoints-runs ).
-    request->set_content_type( zif_aur_runner=>content_type-start ).
-    request->set_text( get_request_payload( ) ).
-
-    client->set_csrf_token( ).
-
-    DATA(response) = client->execute( i_method = if_web_http_client=>post ).
-
-    IF response->get_status( )-code = 201.
-      RETURN response->get_header_field( `location` ).
+  METHOD abool_to_bool.
+    IF boolean = abap_true.
+      RETURN `true`.
+    ELSE.
+      RETURN `false`.
     ENDIF.
   ENDMETHOD.
 
@@ -164,23 +105,6 @@ CLASS zcl_aur_runner IMPLEMENTATION.
     IF response->get_status( )-code = 200.
       DATA(parser) = zcl_aur_core_factory=>create_parser( ).
       RETURN parser->parse_aunit_run( response->get_text( ) ).
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD read_results.
-    DATA(client) = get_client( ).
-
-    DATA(request) = client->get_http_request( ).
-    request->set_uri_path( run-result_link ).
-    request->set_header_field( i_name  = `accept`
-                               i_value = zif_aur_runner=>content_type-result ).
-
-    DATA(response) = client->execute( i_method = if_web_http_client=>get ).
-
-    IF response->get_status( )-code = 200.
-      DATA(parser) = zcl_aur_core_factory=>create_parser( ).
-      RETURN parser->parse_aunit_result( response->get_text( ) ).
     ENDIF.
   ENDMETHOD.
 
@@ -239,11 +163,90 @@ CLASS zcl_aur_runner IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD abool_to_bool.
-    IF boolean = abap_true.
-      RETURN `true`.
-    ELSE.
-      RETURN `false`.
+  METHOD read_results.
+    DATA(client) = get_client( ).
+
+    DATA(request) = client->get_http_request( ).
+    request->set_uri_path( run-result_link ).
+    request->set_header_field( i_name  = `accept`
+                               i_value = zif_aur_runner=>content_type-result ).
+
+    DATA(response) = client->execute( i_method = if_web_http_client=>get ).
+
+    IF response->get_status( )-code = 200.
+      DATA(parser) = zcl_aur_core_factory=>create_parser( ).
+      RETURN parser->parse_aunit_result( response->get_text( ) ).
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD run_and_wait_for_result.
+    DO.
+      DATA(run_index) = sy-index.
+
+      result = check_run( run_id ).
+      IF result-progress_status = zif_aur_runner=>run_status-finished.
+        EXIT.
+      ENDIF.
+
+      IF run_index >= run_setting-wait_cycles_for_result.
+        EXIT.
+      ELSE.
+        WAIT UP TO run_setting-wait_in_seconds SECONDS.
+      ENDIF.
+    ENDDO.
+  ENDMETHOD.
+
+
+  METHOD set_settings_and_empty_values.
+    run_setting = setting.
+
+    IF run_setting-wait_in_seconds IS INITIAL.
+      run_setting-wait_in_seconds = 1.
+    ENDIF.
+
+    IF run_setting-wait_cycles_for_result IS INITIAL.
+      run_setting-wait_cycles_for_result = 60.
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD start_run.
+    DATA(client) = get_client( ).
+
+    DATA(request) = client->get_http_request( ).
+    request->set_uri_path( zif_aur_runner=>endpoints-runs ).
+    request->set_content_type( zif_aur_runner=>content_type-start ).
+    request->set_text( get_request_payload( ) ).
+
+    client->set_csrf_token( ).
+
+    DATA(response) = client->execute( i_method = if_web_http_client=>post ).
+
+    IF response->get_status( )-code = 201.
+      RETURN response->get_header_field( `location` ).
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD zif_aur_runner~execute.
+    set_settings_and_empty_values( setting ).
+
+    TRY.
+        DATA(run_id) = start_run( ).
+        DATA(status) = run_and_wait_for_result( run_id ).
+
+        result-aunit_result = read_results( status ).
+
+        IF result-aunit_result-tests = 0.
+          result-success = abap_false.
+        ELSE.
+          result-success = abap_true.
+        ENDIF.
+
+      CATCH cx_root INTO DATA(error).
+        result-error_message = cl_message_helper=>get_latest_t100_exception( error )->if_message~get_text( ).
+        result-success       = abap_false.
+    ENDTRY.
   ENDMETHOD.
 ENDCLASS.
