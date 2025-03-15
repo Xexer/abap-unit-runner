@@ -31,6 +31,10 @@
         "value": "X"
       },
       {
+        "name": "MAIL_DETAILS",
+        "value": ""
+      },
+      {
         "name": "MAIL_SEND_ONLY_WITH_ERROR",
         "value": "X"
       },

@@ -1,6 +1,8 @@
 INTERFACE zif_aur_runner
   PUBLIC.
 
+  TYPES aunit_time     TYPE p LENGTH 16 DECIMALS 3.
+
   TYPES aunit_object   TYPE c LENGTH 40.
   TYPES aunit_objects  TYPE STANDARD TABLE OF aunit_object WITH EMPTY KEY.
 
@@ -12,6 +14,7 @@ INTERFACE zif_aur_runner
            wait_in_seconds           TYPE i,
            wait_cycles_for_result    TYPE i,
            title                     TYPE string,
+           measurement               TYPE string,
            scope_own                 TYPE abap_boolean,
            scope_foreign             TYPE abap_boolean,
            risklevel_harmless        TYPE abap_boolean,
@@ -25,6 +28,7 @@ INTERFACE zif_aur_runner
            mail_sender               TYPE cl_bcs_mail_message=>ty_address,
            mail_receiver             TYPE mail_receivers,
            mail_send_only_with_error TYPE abap_boolean,
+           mail_details              TYPE abap_boolean,
          END OF setting.
 
   TYPES: BEGIN OF aunit_run,
@@ -38,11 +42,19 @@ INTERFACE zif_aur_runner
            result_link         TYPE string,
          END OF aunit_run.
 
+  TYPES: BEGIN OF aunit_error,
+           message TYPE string,
+           type    TYPE string,
+           detail  TYPE string,
+         END OF aunit_error.
+
   TYPES: BEGIN OF aunit_method,
            classname TYPE string,
            name      TYPE string,
-           time      TYPE p LENGTH 16 DECIMALS 3,
+           time      TYPE aunit_time,
            asserts   TYPE i,
+           error     TYPE aunit_error,
+           failure   TYPE aunit_error,
          END OF aunit_method.
   TYPES aunit_methods TYPE STANDARD TABLE OF aunit_method WITH EMPTY KEY.
 
@@ -55,7 +67,7 @@ INTERFACE zif_aur_runner
            asserts      TYPE i,
            package      TYPE string,
            timestamp    TYPE string,
-           time         TYPE p LENGTH 16 DECIMALS 3,
+           time         TYPE aunit_time,
            hostname     TYPE string,
            test_methods TYPE aunit_methods,
          END OF aunit_test.
@@ -66,7 +78,7 @@ INTERFACE zif_aur_runner
            system         TYPE string,
            client         TYPE string,
            execution_user TYPE string,
-           time           TYPE p LENGTH 16 DECIMALS 3,
+           time           TYPE aunit_time,
            timestamp      TYPE string,
            failures       TYPE i,
            errors         TYPE i,

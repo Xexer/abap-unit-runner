@@ -26,7 +26,7 @@ CLASS ltc_test_mail IMPLEMENTATION.
                                       formats      = formats ).
 
     cl_abap_unit_assert=>assert_equals(
-        exp = `<table><tr><th style="">test</th><th style="">0.001</th><th style="">0 </th></tr></table>`
+        exp = `<table><tr><th style="">test</th><th style="">0.001</th><th style="">0 </th><th style=""></th></tr></table>`
         act = cut->document_parts[ 1 ] ).
   ENDMETHOD.
 ENDCLASS.

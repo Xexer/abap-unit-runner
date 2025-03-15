@@ -7,6 +7,11 @@ CLASS zcl_aur_runner DEFINITION
     INTERFACES zif_aur_runner.
 
   PRIVATE SECTION.
+    CONSTANTS: BEGIN OF header_field,
+                 accept   TYPE string VALUE `accept`,
+                 location TYPE string VALUE `location`,
+               END OF header_field.
+
     DATA run_setting TYPE zif_aur_runner=>setting.
 
     "! Set Settings and fill empty default values
@@ -69,35 +74,16 @@ CLASS zcl_aur_runner DEFINITION
     "! @parameter result | XML Payload
     METHODS get_request_payload
       RETURNING VALUE(result) TYPE string.
-
-    "! Convert ABAP_BOOLEAN to XML Bool
-    "! @parameter boolean | ABAP Bool
-    "! @parameter result  | XML Bool
-    METHODS abool_to_bool
-      IMPORTING boolean       TYPE abap_boolean
-      RETURNING VALUE(result) TYPE string.
 ENDCLASS.
 
 
-
-CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
-
-
-  METHOD abool_to_bool.
-    IF boolean = abap_true.
-      RETURN `true`.
-    ELSE.
-      RETURN `false`.
-    ENDIF.
-  ENDMETHOD.
-
-
+CLASS zcl_aur_runner IMPLEMENTATION.
   METHOD check_run.
     DATA(client) = get_client( ).
 
     DATA(request) = client->get_http_request( ).
     request->set_uri_path( run_id ).
-    request->set_header_field( i_name  = `accept`
+    request->set_header_field( i_name  = header_field-accept
                                i_value = zif_aur_runner=>content_type-check ).
 
     DATA(response) = client->execute( i_method = if_web_http_client=>get ).
@@ -128,38 +114,8 @@ CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
 
 
   METHOD get_request_payload.
-    DATA(package_list) = ``.
-    LOOP AT run_setting-packages INTO DATA(package).
-      package_list &&= |     <osl:package includeSubpackages="true" name="{ package }"/>\r\n|.
-    ENDLOOP.
-
-    DATA(object_list) = ``.
-    LOOP AT run_setting-classes INTO DATA(object).
-      object_list &&= |     <osl:object name="{ object }" type="CLAS"/>\r\n|.
-    ENDLOOP.
-
-    RETURN |<?xml version="1.0" encoding="UTF-8"?>\r\n| &
-           |<aunit:run title="{ run_setting-title }" context="AIE Integration Test" xmlns:aunit="http://www.sap.com/adt/api/aunit">\r\n| &
-           |  <aunit:options>\r\n| &
-           |    <aunit:measurements type="none"/>\r\n| &
-           |    <aunit:scope ownTests="{ abool_to_bool( run_setting-scope_own ) }" foreignTests="{ abool_to_bool(
-                                                                                                       run_setting-scope_foreign ) }"/>\r\n| &
-           |    <aunit:riskLevel harmless="{ abool_to_bool( run_setting-risklevel_harmless ) }" | &
-           |dangerous="{ abool_to_bool( run_setting-risklevel_dangerous ) }" | &
-           |critical="{ abool_to_bool( run_setting-risklevel_critical ) }"/>\r\n| &
-           |    <aunit:duration short="{ abool_to_bool( run_setting-duration_short ) }" medium="{ abool_to_bool(
-                                                                                                      run_setting-duration_medium ) }" | &
-           |long="{ abool_to_bool( run_setting-duration_long ) }"/>\r\n| &
-           |  </aunit:options>\r\n| &
-           |  <osl:objectSet xsi:type="unionSet" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osl="http://www.sap.com/api/osl">\r\n| &
-           |   <osl:set xsi:type="osl:packageSet">\r\n| &
-           |     { package_list }| &
-           |   </osl:set>\r\n| &
-           |   <osl:set xsi:type="osl:flatObjectSet">\r\n| &
-           |     { object_list }| &
-           |   </osl:set>\r\n| &
-           |  </osl:objectSet>\r\n| &
-           |</aunit:run>|.
+    DATA(payload) = zcl_aur_core_factory=>create_payload( ).
+    RETURN payload->get_xml_payload( run_setting ).
   ENDMETHOD.
 
 
@@ -168,7 +124,7 @@ CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
 
     DATA(request) = client->get_http_request( ).
     request->set_uri_path( run-result_link ).
-    request->set_header_field( i_name  = `accept`
+    request->set_header_field( i_name  = header_field-accept
                                i_value = zif_aur_runner=>content_type-result ).
 
     DATA(response) = client->execute( i_method = if_web_http_client=>get ).
@@ -224,7 +180,7 @@ CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
     DATA(response) = client->execute( i_method = if_web_http_client=>post ).
 
     IF response->get_status( )-code = 201.
-      RETURN response->get_header_field( `location` ).
+      RETURN response->get_header_field( header_field-location ).
     ENDIF.
   ENDMETHOD.
 
@@ -245,7 +201,7 @@ CLASS ZCL_AUR_RUNNER IMPLEMENTATION.
         ENDIF.
 
       CATCH cx_root INTO DATA(error).
-        result-error_message = cl_message_helper=>get_latest_t100_exception( error )->if_message~get_text( ).
+        result-error_message = error->get_text( ).
         result-success       = abap_false.
     ENDTRY.
   ENDMETHOD.

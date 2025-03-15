@@ -167,6 +167,12 @@
       "name": "RECEIVER",
       "title": "Receiver",
       "group": "MAIL"
+    },
+    {
+      "name": "MAIL_DETAILS",
+      "title": "Add details for Tests",
+      "group": "MAIL",
+      "screenElement": "checkbox"
     }
   ]
 }

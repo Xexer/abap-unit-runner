@@ -33,12 +33,23 @@ ENDCLASS.
 
 CLASS zcl_aur_parser IMPLEMENTATION.
   METHOD zif_aur_parser~parse_aunit_result.
+    DATA method TYPE REF TO zif_aur_runner=>aunit_method.
+
     DATA(reader) = get_reader_from_xml( to_parse ).
 
     DO.
       DATA(node) = reader->read_next_node( ).
       IF reader->node_type = if_sxml_node=>co_nt_final.
         EXIT.
+      ENDIF.
+
+      IF reader->node_type = if_sxml_node=>co_nt_value.
+        CASE to_upper( reader->name ).
+          WHEN 'ERROR'.
+            method->error-detail = reader->value.
+          WHEN 'FAILURE'.
+            method->failure-detail = reader->value.
+        ENDCASE.
       ENDIF.
 
       IF reader->node_type <> if_sxml_node=>co_nt_element_open.
@@ -79,12 +90,24 @@ CLASS zcl_aur_parser IMPLEMENTATION.
                        open_node = open_node ).
 
         WHEN 'TESTCASE'.
-          INSERT INITIAL LINE INTO TABLE test->test_methods REFERENCE INTO DATA(method).
+          INSERT INITIAL LINE INTO TABLE test->test_methods REFERENCE INTO method.
           fill_result( mappings  = VALUE #( ( attribute = `classname` )
                                             ( attribute = `name` )
                                             ( attribute = `time` )
                                             ( attribute = `asserts` ) )
                        structure = method
+                       open_node = open_node ).
+
+        WHEN 'ERROR'.
+          fill_result( mappings  = VALUE #( ( attribute = `message` )
+                                            ( attribute = `type` ) )
+                       structure = REF #( method->error )
+                       open_node = open_node ).
+
+        WHEN 'FAILURE'.
+          fill_result( mappings  = VALUE #( ( attribute = `message` )
+                                            ( attribute = `type` ) )
+                       structure = REF #( method->failure )
                        open_node = open_node ).
 
       ENDCASE.

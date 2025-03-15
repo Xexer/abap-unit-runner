@@ -11,6 +11,11 @@ CLASS zcl_aur_core_factory DEFINITION
     "! @parameter result | Instance of parser
     CLASS-METHODS create_parser
       RETURNING VALUE(result) TYPE REF TO zif_aur_parser.
+
+    "! Create XML payload generator
+    "! @parameter result | Instance of parser
+    CLASS-METHODS create_payload
+      RETURNING VALUE(result) TYPE REF TO zif_aur_payload.
 ENDCLASS.
 
 
@@ -22,5 +27,10 @@ CLASS zcl_aur_core_factory IMPLEMENTATION.
 
   METHOD create_runner.
     RETURN NEW zcl_aur_runner( ).
+  ENDMETHOD.
+
+
+  METHOD create_payload.
+    RETURN NEW zcl_aur_payload( ).
   ENDMETHOD.
 ENDCLASS.

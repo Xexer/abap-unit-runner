@@ -36,6 +36,7 @@ INTERFACE zif_aur_mail
            name    TYPE string,
            time    TYPE string,
            asserts TYPE string,
+           message TYPE string,
          END OF method_part.
   TYPES method_parts TYPE STANDARD TABLE OF method_part WITH EMPTY KEY.
 

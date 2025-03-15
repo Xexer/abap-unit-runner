@@ -10,6 +10,7 @@
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
+    <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
    <TPOOL>
     <item>
@@ -113,6 +114,12 @@
      <KEY>017</KEY>
      <ENTRY>Method</ENTRY>
      <LENGTH>16</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Message</ENTRY>
+     <LENGTH>17</LENGTH>
     </item>
    </TPOOL>
   </asx:values>

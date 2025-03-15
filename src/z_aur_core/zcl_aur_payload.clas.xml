@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_AUR_RUNNER</CLSNAME>
+    <CLSNAME>ZCL_AUR_PAYLOAD</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>AUnit Runner</DESCRIPT>
+    <DESCRIPT>AUnit Payload (Class)</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

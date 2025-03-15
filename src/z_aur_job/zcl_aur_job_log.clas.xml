@@ -3,14 +3,13 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_AUR_RUNNER</CLSNAME>
+    <CLSNAME>ZCL_AUR_JOB_LOG</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>AUnit Runner</DESCRIPT>
+    <DESCRIPT>AUnit Job Log (Class)</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
-    <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
    </VSEOCLASS>
   </asx:values>
  </asx:abap>
