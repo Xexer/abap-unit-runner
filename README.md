@@ -23,4 +23,5 @@ Here you will find some material to get started with the project and learn some 
 - [Software Heroes - ABAP Unit Runner](https://software-heroes.com/en/blog/btp-abap-unit-runner-en)
 - [SAP Community - ABAP Unit Runner](https://community.sap.com/t5/technology-blogs-by-members/abap-environment-abap-unit-runner/ba-p/14009704)
 - SAP Community - ABAP Unit Runner (Setup)
+- SAP Community - ABAP Unit Runner (Analysis)
 - SAP Community - ABAP Unit Runner (Behind the Scenes)
